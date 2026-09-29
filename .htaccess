@@ -1,0 +1,76 @@
+# ==========================================================================
+# FICHIER .HTACCESS - Peinture Élégance
+# Sécurité, Performance et Redirections pour Apache (WampServer / Production)
+# ==========================================================================
+
+# Empêcher le listing des répertoires
+Options -Indexes
+
+# Empêcher l'accès direct aux fichiers PHP sensibles
+<FilesMatch "^(config|db|header|footer)\.php$">
+    Require all denied
+</FilesMatch>
+
+# Bloquer l'accès aux fichiers sensibles (identifiants, documentation interne)
+<FilesMatch "^(identifiant\.txt|\.env)$">
+    Require all denied
+</FilesMatch>
+
+# Sitemap et robots dynamiques (URLs auto-adaptées local / production)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^sitemap\.xml$ sitemap.php [L]
+    RewriteRule ^robots\.txt$ robots.php [L]
+</IfModule>
+
+# Page d'erreur 404 personnalisée
+ErrorDocument 404 /projet%20stage/404.php
+
+# Forcer le HTTPS en production (décommenter une fois le certificat SSL installé)
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ==========================================================================
+# EN-TÊTES DE SÉCURITÉ HTTP
+# ==========================================================================
+<IfModule mod_headers.c>
+    # Protection contre le clickjacking (empêche l'intégration du site dans une iframe)
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Protection XSS du navigateur
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Empêcher le sniffing MIME
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Politique de référent pour préserver la vie privée
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ==========================================================================
+# CACHE NAVIGATEUR (PERFORMANCE)
+# ==========================================================================
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Images : cache de 1 mois
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 year"
+    
+    # CSS et JS : cache de 1 semaine
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    
+    # Polices : cache de 1 mois
+    ExpiresByType font/woff2 "access plus 1 month"
+    ExpiresByType font/woff "access plus 1 month"
+</IfModule>
+
+# Compression GZIP pour accélérer le chargement
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json text/xml image/svg+xml
+</IfModule>

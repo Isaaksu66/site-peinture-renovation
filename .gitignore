@@ -1,0 +1,16 @@
+# Secrets / fichiers locaux
+.env
+*.local.php
+identifiant*.txt
+id.txt
+
+# Deploiement
+deploy*.bat
+deploy*.php
+.vercel
+
+# Divers
+*.zip
+.DS_Store
+Thumbs.db
+
